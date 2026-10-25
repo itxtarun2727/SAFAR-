@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { api, formatINR, formatDate } from "../api";
 
-export default function InstrumentsView({ onOpenNewModal, onSelectInstrumentForRecon }) {
+export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectInstrumentForRecon }) {
   const [instruments, setInstruments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,20 +87,32 @@ export default function InstrumentsView({ onOpenNewModal, onSelectInstrumentForR
     <div className="view-container">
       <section className="welcome-row">
         <div>
-          <p className="eyebrow">REGULATORY ASSET INVENTORY</p>
-          <h1>FDR Instruments Registry</h1>
+          <p className="eyebrow">
+            {currentUser?.role === "institution" ? "INSTITUTIONAL ASSET PORTFOLIO" : "REGULATORY ASSET INVENTORY"}
+          </p>
+          <h1>
+            {currentUser?.role === "institution" ? "My College Registered FDRs" : "FDR Instruments Registry"}
+          </h1>
           <p className="subtitle">
-            Comprehensive registry of technical institution Fixed Deposit Receipts, joint accounts, and lien status.
+            {currentUser?.role === "institution"
+              ? "Displaying Fixed Deposit Receipts registered by Greenfield Institute of Technology (inst-001) under AICTE jurisdiction."
+              : "Comprehensive registry of technical institution Fixed Deposit Receipts, joint accounts, and lien status."}
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <button className="secondary-button" onClick={fetchInstruments} title="Refresh Table">
             <RefreshCw size={15} className={loading ? "spin" : ""} /> Refresh
           </button>
-          <button className="primary-button" onClick={onOpenNewModal}>
-            <Plus size={18} /> Register New FDR
-          </button>
+          {currentUser?.role === "auditor" ? (
+            <span className="badge-tag gray" style={{ padding: "8px 12px", fontSize: "11px" }}>
+              🔒 Read-Only Compliance Auditor
+            </span>
+          ) : (
+            <button className="primary-button" onClick={onOpenNewModal}>
+              <Plus size={18} /> Register New FDR
+            </button>
+          )}
         </div>
       </section>
 

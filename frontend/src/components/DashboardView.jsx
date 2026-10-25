@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { api, formatINR, formatDate } from "../api";
 
-export default function DashboardView({ onSelectTab, onOpenNewModal, onSelectInstrumentForRecon }) {
+export default function DashboardView({ currentUser, onSelectTab, onOpenNewModal, onSelectInstrumentForRecon }) {
   const [stats, setStats] = useState(null);
   const [instruments, setInstruments] = useState([]);
   const [auditStatus, setAuditStatus] = useState(null);
@@ -62,7 +62,7 @@ export default function DashboardView({ onSelectTab, onOpenNewModal, onSelectIns
   const disputedCount = stats?.disputed ?? instruments.filter((i) => i.status === "DISPUTED").length;
 
   const metrics = [
-    { title: "Total Registered FDRs", value: totalCount, note: "Live instruments in registry", icon: FileText, color: "blue" },
+    { title: currentUser?.role === "institution" ? "My Registered FDRs" : "Total Registered FDRs", value: totalCount, note: currentUser?.role === "institution" ? "College FDRs on file" : "Live instruments in registry", icon: FileText, color: "blue" },
     { title: "Active & Verified", value: activeCount, note: "Bank confirmed & lien active", icon: CheckCircle2, color: "green" },
     { title: "Expiring (90-Day Window)", value: expiringCount, note: "Action required for renewal", icon: Clock, color: "amber" },
     { title: "Disputed / Flagged", value: disputedCount, note: "Requires scrutiny action", icon: AlertTriangle, color: "red" },
@@ -87,20 +87,38 @@ export default function DashboardView({ onSelectTab, onOpenNewModal, onSelectIns
       {/* Welcome Row */}
       <section className="welcome-row">
         <div>
-          <p className="eyebrow">FINANCIAL DEPOSIT REPOSITORY · SIH 26265</p>
-          <h1>Executive Overview</h1>
+          <p className="eyebrow">
+            {currentUser?.role === "institution"
+              ? "INSTITUTIONAL DASHBOARD · GREENFIELD TECH (INST-001)"
+              : "FINANCIAL DEPOSIT REPOSITORY · SIH 26265"}
+          </p>
+          <h1>
+            {currentUser?.role === "institution"
+              ? "College Deposit Overview"
+              : currentUser?.role === "auditor"
+              ? "Regulatory Compliance Audit Desk"
+              : "Executive Overview"}
+          </h1>
           <p className="subtitle">
-            Automated monitoring of technical institution joint FDRs, automated bank confirmation, and tamper-proof audit trails.
+            {currentUser?.role === "institution"
+              ? "Monitoring fixed deposits, AICTE joint account lien endorsements, and bank confirmation status."
+              : "Automated monitoring of technical institution joint FDRs, automated bank confirmation, and tamper-proof audit trails."}
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <button className="secondary-button" onClick={loadDashboardData} title="Refresh Live Data">
             <RefreshCw size={15} className={loading ? "spin" : ""} /> Refresh
           </button>
-          <button className="primary-button" onClick={onOpenNewModal}>
-            <Plus size={18} /> Register New FDR
-          </button>
+          {currentUser?.role === "auditor" ? (
+            <span className="badge-tag gray" style={{ padding: "8px 12px", fontSize: "11px" }}>
+              🔒 Read-Only Auditor Mode
+            </span>
+          ) : (
+            <button className="primary-button" onClick={onOpenNewModal}>
+              <Plus size={18} /> Register New FDR
+            </button>
+          )}
         </div>
       </section>
 
