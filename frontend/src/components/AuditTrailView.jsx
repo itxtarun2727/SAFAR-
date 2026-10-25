@@ -168,52 +168,59 @@ export default function AuditTrailView() {
                   </td>
                 </tr>
               ) : (
-                entries.map((block) => (
-                  <tr key={block.id} className={!verification?.ok && block.seq === verification?.first_broken_seq ? "tampered-row" : ""}>
-                    <td>
-                      <span className="seq-badge">#{String(block.seq).padStart(2, "0")}</span>
-                    </td>
-                    <td>
-                      <div>{formatDate(block.timestamp)}</div>
-                      <span className="sub-text">
-                        {new Date(block.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                      </span>
-                    </td>
-                    <td>
-                      <strong>{block.actor_id}</strong>
-                      <span className="sub-tag">{block.role}</span>
-                    </td>
-                    <td>
-                      <span className="event-pill">{block.event}</span>
-                    </td>
-                    <td>
-                      <div className="transition-flow">
-                        <span>{block.from_state || "INIT"}</span>
-                        <span className="arrow">➔</span>
-                        <strong>{block.to_state || block.event}</strong>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="hash-mono" title={block.prev_hash}>
-                        {formatHash(block.prev_hash)}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="hash-wrap">
-                        <span className="hash-mono full" title={block.sha256}>
-                          {formatHash(block.sha256)}
+                entries.map((block) => {
+                  const blockHash = block.row_hash || block.sha256 || "";
+                  const blockTime = block.at || block.timestamp;
+                  return (
+                    <tr
+                      key={`seq-${block.seq}`}
+                      className={!verification?.ok && block.seq === verification?.first_broken_seq ? "tampered-row" : ""}
+                    >
+                      <td>
+                        <span className="seq-badge">#{String(block.seq).padStart(2, "0")}</span>
+                      </td>
+                      <td>
+                        <div>{formatDate(blockTime)}</div>
+                        <span className="sub-text">
+                          {blockTime ? new Date(blockTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "—"}
                         </span>
-                        <button
-                          className="copy-btn"
-                          onClick={() => copyToClipboard(block.sha256)}
-                          title="Copy Full SHA-256 Hash"
-                        >
-                          {copiedHash === block.sha256 ? <Check size={12} color="#168052" /> : <Copy size={12} />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td>
+                        <strong>{block.actor_id}</strong>
+                        <span className="sub-tag">{block.role}</span>
+                      </td>
+                      <td>
+                        <span className="event-pill">{block.reason || block.event || block.entity}</span>
+                      </td>
+                      <td>
+                        <div className="transition-flow">
+                          <span>{block.from_state || "INIT"}</span>
+                          <span className="arrow">➔</span>
+                          <strong>{block.to_state || "LOGGED"}</strong>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="hash-mono" title={block.prev_hash}>
+                          {formatHash(block.prev_hash)}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="hash-wrap">
+                          <span className="hash-mono full" title={blockHash}>
+                            {formatHash(blockHash)}
+                          </span>
+                          <button
+                            className="copy-btn"
+                            onClick={() => copyToClipboard(blockHash)}
+                            title="Copy Full SHA-256 Hash"
+                          >
+                            {copiedHash === blockHash ? <Check size={12} color="#168052" /> : <Copy size={12} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
