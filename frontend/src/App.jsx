@@ -8,11 +8,8 @@ import {
   Settings,
   Bell,
   ChevronDown,
-  UserCheck,
-  Building,
-  Eye,
-  CheckCircle2,
-  Lock
+  UploadCloud,
+  GraduationCap
 } from "lucide-react";
 import "./App.css";
 
@@ -22,10 +19,11 @@ import InstrumentsView from "./components/InstrumentsView";
 import BankVerificationView from "./components/BankVerificationView";
 import AuditTrailView from "./components/AuditTrailView";
 import SettingsView from "./components/SettingsView";
+import CollegePortalView from "./components/CollegePortalView";
 import NewInstrumentModal from "./components/NewInstrumentModal";
 
 function App() {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState("National Dashboard");
   const [selectedRole, setSelectedRole] = useState("priya");
   const [currentUser, setCurrentUser] = useState(null);
   const [reconInstrumentId, setReconInstrumentId] = useState("");
@@ -49,13 +47,15 @@ function App() {
       // Increment refresh key to trigger immediate re-fetch in all views with new Bearer token
       setRefreshKey((k) => k + 1);
 
-      // Contextual auto-switch tab based on persona for intuitive evaluation
-      if (username === "bank_checker") {
+      // Contextual auto-switch tab based on persona
+      if (username === "inst_user") {
+        setActiveTab("College Dashboard");
+      } else if (username === "bank_checker") {
         setActiveTab("Bank Verification");
       } else if (username === "auditor") {
         setActiveTab("Audit Trail");
-      } else if (username === "inst_user") {
-        setActiveTab("FDR Instruments");
+      } else {
+        setActiveTab("National Dashboard");
       }
     } catch (err) {
       console.error("Role switch authentication failed:", err);
@@ -67,18 +67,24 @@ function App() {
     setActiveTab("Bank Verification");
   };
 
-  const navigation = [
-    { name: "Dashboard", icon: LayoutDashboard },
-    {
-      name: currentUser?.role === "institution" ? "My College FDRs" : "FDR Instruments",
-      icon: FileText
-    },
-    { name: "Bank Verification", icon: Landmark },
-    { name: "Audit Trail", icon: ClipboardCheck },
-    { name: "Settings", icon: Settings },
-  ];
+  const isCollege = currentUser?.role === "institution";
 
-  // Helper for persona details
+  // Sidebar navigation dynamically adapts to role
+  const navigation = isCollege
+    ? [
+        { name: "College Dashboard", icon: LayoutDashboard },
+        { name: "Upload New FDR", icon: UploadCloud },
+        { name: "Approval & Maturity Alerts", icon: Bell },
+      ]
+    : [
+        { name: "National Dashboard", icon: LayoutDashboard },
+        { name: "All College FDRs", icon: FileText },
+        { name: "Bank Verification", icon: Landmark },
+        { name: "Audit Trail", icon: ClipboardCheck },
+        { name: "Settings", icon: Settings },
+      ];
+
+  // Helper for persona metadata
   const getPersonaMeta = () => {
     const role = currentUser?.role || "aicte_officer";
     switch (role) {
@@ -87,8 +93,8 @@ function App() {
           avatarClass: "institution",
           avatarText: "GI",
           title: "Greenfield Tech User",
-          scope: "Institutional Scope: Greenfield Institute of Technology (inst-001) · Showing only college-owned FDRs.",
-          privilege: "College FDR Registration & Status Tracking",
+          scope: "Strict College Isolation: Greenfield Institute of Technology (inst-001) · Isolated from other colleges.",
+          privilege: "College FDR Upload, Portfolio & Approval Alerts",
         };
       case "bank_checker":
         return {
@@ -145,39 +151,33 @@ function App() {
           </div>
           <div>
             <h2>SAFAR</h2>
-            <span>AICTE FDR PORTAL</span>
+            <span>{isCollege ? "COLLEGE PORTAL" : "AICTE FDR PORTAL"}</span>
           </div>
         </div>
 
-        <div className="nav-label">WORKSPACE</div>
+        <div className="nav-label">
+          {isCollege ? "COLLEGE DESK" : "OFFICER WORKSPACE"}
+        </div>
 
         <nav>
-          {navigation.map(({ name, icon: Icon }) => {
-            const isSelected =
-              activeTab === name ||
-              (activeTab === "FDR Instruments" && name === "My College FDRs");
-            return (
-              <button
-                key={name}
-                className={`nav-item ${isSelected ? "selected" : ""}`}
-                onClick={() => {
-                  if (name === "My College FDRs") setActiveTab("FDR Instruments");
-                  else setActiveTab(name);
-                }}
-              >
-                <Icon size={19} />
-                <span>{name}</span>
-              </button>
-            );
-          })}
+          {navigation.map(({ name, icon: Icon }) => (
+            <button
+              key={name}
+              className={`nav-item ${activeTab === name ? "selected" : ""}`}
+              onClick={() => setActiveTab(name)}
+            >
+              <Icon size={19} />
+              <span>{name}</span>
+            </button>
+          ))}
         </nav>
 
         <div className="sidebar-bottom">
           <div className="secure-badge">
             <ShieldCheck size={19} />
             <div>
-              <strong>Cryptographic Integrity</strong>
-              <span>SHA-256 Chaining Active</span>
+              <strong>{isCollege ? "Institutional Isolated" : "Cryptographic Integrity"}</strong>
+              <span>{isCollege ? "Private College Scope" : "SHA-256 Chaining Active"}</span>
             </div>
           </div>
           <p>SIH 26265 · AICTE Govt of India</p>
@@ -189,7 +189,9 @@ function App() {
         {/* Topbar */}
         <header className="topbar">
           <div>
-            <span className="breadcrumb">Workspace / </span>
+            <span className="breadcrumb">
+              {isCollege ? "College Portal / " : "AICTE Central / "}
+            </span>
             <strong>{activeTab}</strong>
           </div>
 
@@ -243,36 +245,47 @@ function App() {
             </div>
           </section>
 
-          {activeTab === "Dashboard" && (
-            <DashboardView
-              currentUser={currentUser}
-              onSelectTab={setActiveTab}
-              onOpenNewModal={() => setIsNewModalOpen(true)}
-              onSelectInstrumentForRecon={handleSelectInstrumentForRecon}
-            />
-          )}
-
-          {activeTab === "FDR Instruments" && (
-            <InstrumentsView
+          {/* Dedicated College Portal for Technical Colleges */}
+          {isCollege ? (
+            <CollegePortalView
               currentUser={currentUser}
               onOpenNewModal={() => setIsNewModalOpen(true)}
-              onSelectInstrumentForRecon={handleSelectInstrumentForRecon}
             />
-          )}
+          ) : (
+            /* Officers & Bank & Auditor Portals */
+            <>
+              {activeTab === "National Dashboard" && (
+                <DashboardView
+                  currentUser={currentUser}
+                  onSelectTab={setActiveTab}
+                  onOpenNewModal={() => setIsNewModalOpen(true)}
+                  onSelectInstrumentForRecon={handleSelectInstrumentForRecon}
+                />
+              )}
 
-          {activeTab === "Bank Verification" && (
-            <BankVerificationView
-              currentUser={currentUser}
-              initialInstrumentId={reconInstrumentId}
-            />
-          )}
+              {activeTab === "All College FDRs" && (
+                <InstrumentsView
+                  currentUser={currentUser}
+                  onOpenNewModal={() => setIsNewModalOpen(true)}
+                  onSelectInstrumentForRecon={handleSelectInstrumentForRecon}
+                />
+              )}
 
-          {activeTab === "Audit Trail" && (
-            <AuditTrailView currentUser={currentUser} />
-          )}
+              {activeTab === "Bank Verification" && (
+                <BankVerificationView
+                  currentUser={currentUser}
+                  initialInstrumentId={reconInstrumentId}
+                />
+              )}
 
-          {activeTab === "Settings" && (
-            <SettingsView currentUser={currentUser} />
+              {activeTab === "Audit Trail" && (
+                <AuditTrailView currentUser={currentUser} />
+              )}
+
+              {activeTab === "Settings" && (
+                <SettingsView currentUser={currentUser} />
+              )}
+            </>
           )}
 
           <footer>

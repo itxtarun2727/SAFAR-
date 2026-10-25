@@ -185,15 +185,21 @@ def execute_transition(
     return instrument, effects
 
 
-def get_dashboard_counts(db: Session) -> Dict[str, int]:
-    """Fetch the six core counts for dashboard StatCards."""
+def get_dashboard_counts(db: Session, institution_id: Optional[str] = None) -> Dict[str, int]:
+    """Fetch the core counts for dashboard StatCards, optionally scoped to an institution."""
     today = Clock.today()
     from datetime import timedelta
     ninety_days_later = today + timedelta(days=90)
 
-    total_active = db.query(models.Instrument).filter(models.Instrument.status == "ACTIVE").count()
+    def scoped_query():
+        q = db.query(models.Instrument)
+        if institution_id:
+            q = q.filter(models.Instrument.institution_id == institution_id)
+        return q
+
+    total_active = scoped_query().filter(models.Instrument.status == "ACTIVE").count()
     expiring_soon = (
-        db.query(models.Instrument)
+        scoped_query()
         .filter(
             models.Instrument.status == "ACTIVE",
             models.Instrument.maturity_date <= ninety_days_later,
@@ -202,20 +208,21 @@ def get_dashboard_counts(db: Session) -> Dict[str, int]:
         .count()
     )
     matured = (
-        db.query(models.Instrument)
+        scoped_query()
         .filter(
             models.Instrument.status.in_(["ACTIVE", "RENEWAL_PENDING"]),
             models.Instrument.maturity_date < today
         )
         .count()
     )
-    renewed = db.query(models.Instrument).filter(models.Instrument.predecessor_id.isnot(None)).count()
-    released = db.query(models.Instrument).filter(models.Instrument.status == "CLOSED").count()
+    renewed = scoped_query().filter(models.Instrument.predecessor_id.isnot(None)).count()
+    released = scoped_query().filter(models.Instrument.status == "CLOSED").count()
     pending = (
-        db.query(models.Instrument)
+        scoped_query()
         .filter(models.Instrument.status.in_(["SUBMITTED", "BANK_CHECK", "RELEASE_REQUESTED", "COMPLIANCE_CHECK"]))
         .count()
     )
+    disputed = scoped_query().filter(models.Instrument.status == "DISPUTED").count()
 
     return {
         "active": total_active,
@@ -224,6 +231,7 @@ def get_dashboard_counts(db: Session) -> Dict[str, int]:
         "renewed": renewed,
         "released": released,
         "pending": pending,
+        "disputed": disputed,
     }
 
 

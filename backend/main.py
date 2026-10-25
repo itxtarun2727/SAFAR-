@@ -137,6 +137,9 @@ def create_instrument(
     db: Session = Depends(get_db),
 ):
     """Submit a new FDR certificate record (Scenario 1)."""
+    # College account isolation: automatically bind to the college's assigned institution
+    if user.role == "institution" and user.institution_ids:
+        data.institution_id = user.institution_ids[0]
     return crud.create_instrument(db, data, actor_id=user.user_id, role=user.role)
 
 
@@ -319,17 +322,27 @@ def request_release_endpoint(
 # ── Dashboard Metrics ──────────────────────────────────────────────────────────
 
 @app.get("/dashboard/stats", tags=["Dashboard"])
-def get_dashboard_metrics(db: Session = Depends(get_db)):
-    """Return the 6 primary status counts for dashboard cards."""
-    return crud.get_dashboard_counts(db)
+def get_dashboard_metrics(
+    user: auth.AuthUser = Depends(auth.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return status counts scoped to active user / institution."""
+    institution_id = user.institution_ids[0] if (user.role == "institution" and user.institution_ids) else None
+    return crud.get_dashboard_counts(db, institution_id=institution_id)
 
 
 # ── Alerts & Scheduler ─────────────────────────────────────────────────────────
 
 @app.get("/alerts", response_model=List[schemas.AlertResponse], tags=["Alerts"])
-def list_alerts(instrument_id: Optional[str] = None, db: Session = Depends(get_db)):
-    """List generated maturity and escalation alerts."""
+def list_alerts(
+    instrument_id: Optional[str] = None,
+    user: auth.AuthUser = Depends(auth.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List generated maturity and escalation alerts with institutional isolation."""
     query = db.query(models.Alert)
+    if user.role == "institution" and user.institution_ids:
+        query = query.join(models.Instrument).filter(models.Instrument.institution_id == user.institution_ids[0])
     if instrument_id:
         query = query.filter(models.Alert.instrument_id == instrument_id)
     return query.order_by(models.Alert.sent_at.desc()).all()

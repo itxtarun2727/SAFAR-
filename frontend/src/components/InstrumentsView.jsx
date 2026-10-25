@@ -18,6 +18,8 @@ import { api, formatINR, formatDate } from "../api";
 
 export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectInstrumentForRecon }) {
   const [instruments, setInstruments] = useState([]);
+  const [institutions, setInstitutions] = useState([]);
+  const [selectedInstFilter, setSelectedInstFilter] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -27,8 +29,12 @@ export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectI
   const fetchInstruments = async () => {
     try {
       setLoading(true);
-      const data = await api.getInstruments();
+      const [data, insts] = await Promise.all([
+        api.getInstruments(),
+        api.getInstitutions().catch(() => []),
+      ]);
       setInstruments(data || []);
+      setInstitutions(insts || []);
     } catch (err) {
       console.error("Failed to fetch instruments:", err);
     } finally {
@@ -59,13 +65,19 @@ export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectI
 
     if (!matchesStatus) return false;
 
+    const matchesInst =
+      selectedInstFilter === "ALL" || item.institution_id === selectedInstFilter;
+
+    if (!matchesInst) return false;
+
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
       item.reference_no?.toLowerCase().includes(term) ||
       item.bank_name?.toLowerCase().includes(term) ||
       item.joint_holder?.toLowerCase().includes(term) ||
-      item.branch?.toLowerCase().includes(term)
+      item.branch?.toLowerCase().includes(term) ||
+      item.institution_id?.toLowerCase().includes(term)
     );
   });
 
@@ -127,6 +139,25 @@ export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectI
           />
         </div>
 
+        {currentUser?.role !== "institution" && institutions.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>Filter College:</span>
+            <select
+              value={selectedInstFilter}
+              onChange={(e) => setSelectedInstFilter(e.target.value)}
+              className="recon-select"
+              style={{ minWidth: "220px", padding: "6px 10px" }}
+            >
+              <option value="ALL">All Technical Colleges (Nationwide)</option>
+              {institutions.map((inst) => (
+                <option key={inst.id} value={inst.id}>
+                  {inst.name} ({inst.state})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="filter-tabs">
           {["ALL", "ACTIVE", "SUBMITTED", "DISPUTED", "MATURED"].map((st) => (
             <button
@@ -147,6 +178,7 @@ export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectI
             <thead>
               <tr>
                 <th>FDR REFERENCE</th>
+                {currentUser?.role !== "institution" && <th>COLLEGE / INSTITUTION</th>}
                 <th>BANK & BRANCH</th>
                 <th>PRINCIPAL AMOUNT</th>
                 <th>INTEREST & TENURE</th>
@@ -159,30 +191,38 @@ export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectI
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: "center", padding: "30px" }}>
+                  <td colSpan={currentUser?.role !== "institution" ? 9 : 8} style={{ textAlign: "center", padding: "30px" }}>
                     {loading ? "Loading FDR instruments..." : "No instruments found matching criteria."}
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => (
-                  <tr key={item.id}>
-                    <td className="fdr-number">
-                      <strong>{item.reference_no}</strong>
-                      <span className="sub-tag">{item.id}</span>
-                    </td>
-                    <td>
-                      <div>{item.bank_name}</div>
-                      <span className="sub-text">{item.branch || "General Branch"}</span>
-                    </td>
-                    <td className="amount">{formatINR(item.amount_paise)}</td>
-                    <td>
-                      <div>{item.interest_rate || "N/A"}</div>
-                      <span className="sub-text">{item.tenure_years} Years</span>
-                    </td>
-                    <td>
-                      <div>{formatDate(item.maturity_date)}</div>
-                      <span className="sub-text">Issued: {formatDate(item.issue_date)}</span>
-                    </td>
+                filtered.map((item) => {
+                  const instObj = institutions.find((i) => i.id === item.institution_id);
+                  return (
+                    <tr key={item.id}>
+                      <td className="fdr-number">
+                        <strong>{item.reference_no}</strong>
+                        <span className="sub-tag">{item.id}</span>
+                      </td>
+                      {currentUser?.role !== "institution" && (
+                        <td>
+                          <strong>{instObj?.name || item.institution_id}</strong>
+                          <span className="sub-text">{instObj?.state ? `${instObj.state} · ${item.institution_id}` : item.institution_id}</span>
+                        </td>
+                      )}
+                      <td>
+                        <div>{item.bank_name}</div>
+                        <span className="sub-text">{item.branch || "General Branch"}</span>
+                      </td>
+                      <td className="amount">{formatINR(item.amount_paise)}</td>
+                      <td>
+                        <div>{item.interest_rate || "N/A"}</div>
+                        <span className="sub-text">{item.tenure_years} Years</span>
+                      </td>
+                      <td>
+                        <div>{formatDate(item.maturity_date)}</div>
+                        <span className="sub-text">Issued: {formatDate(item.issue_date)}</span>
+                      </td>
                     <td>
                       {item.lien_marked ? (
                         <span className="badge-tag green">Lien Marked</span>
@@ -210,8 +250,9 @@ export default function InstrumentsView({ currentUser, onOpenNewModal, onSelectI
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })
+            )}
             </tbody>
           </table>
         </div>
