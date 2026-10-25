@@ -1,0 +1,92 @@
+# SAFAR Project Rules & System Brief (SIH Problem Statement 26265)
+# Team: Code Blooded | AICTE Regulation Bureau | Smart Automation
+
+## 1. Project Overview & Identity
+- **Product Name:** SAFAR — Smart AICTE FDR Automation & Registry
+- **Objective:** Streamline the lifecycle of Fixed Deposit Receipts (FDR) and Bank Guarantees (BG) submitted by technical institutions to AICTE as security deposits.
+- **Key Principle:** Keep what an institution SUBMITS strictly separate from what an issuing bank INDEPENDENTLY CONFIRMS. Never advance or release an instrument on the institution's word alone.
+- **Simulation Disclaimer:** All bank verification calls and confirmation responses are SIMULATED in this prototype using mock adapters. Never claim real core banking API connections. Label all simulated components clearly in UI, code, and docs.
+
+---
+
+## 2. Architecture & Layout Conventions
+This project follows a **FLAT BACKEND LAYOUT** and **REACT + VITE FRONTEND**:
+
+```text
+SAFAR-SIH26265/
+├── README.md                  # Includes "bank confirmation is SIMULATED" notice
+├── .gitignore
+├── .cursorrules               # Full SAFAR brief + flat backend layout (this file)
+├── .env.example
+├── docker-compose.yml         # Multi-service stack (postgres, backend, frontend)
+├── render.yaml                # Cloud deployment blueprint
+├── docs/                      # Original research PDFs and DESIGN.md
+│
+├── backend/                   # FLAT BACKEND LAYOUT (Python 3.11+ / FastAPI)
+│   ├── main.py                # FastAPI app factory, routes inclusion, /health
+│   ├── database.py            # SQLAlchemy engine, session maker, Base declarative
+│   ├── models.py              # All relational database models
+│   ├── schemas.py             # Pydantic request/response schemas
+│   ├── crud.py                # Pure query layer; calls workflow.py for state transitions
+│   ├── workflow.py            # SINGLE SOURCE OF TRUTH: Transition table & guards
+│   ├── audit.py               # Cryptographic SHA-256 hash-chained audit log
+│   ├── scheduler.py           # Idempotent daily alert job & manual trigger
+│   ├── clock.py               # Demo time service with settable "now"
+│   ├── rules.py               # Reads & manages the configurable Rule table
+│   ├── adapters.py            # BaseBankAdapter, MockBankAdapter (SIMULATED), FileFeedAdapter
+│   ├── auth.py                # JWT tokens, demo personas, role & institution guards
+│   ├── seed.py                # Synthetic reference data & demo instruments
+│   ├── tests/                 # test_workflow.py, test_audit.py, test_alerts.py
+│   ├── requirements.txt       # Production dependencies
+│   └── Dockerfile
+│
+└── frontend/                  # React 18 + Vite + Tailwind CSS (.jsx / .js)
+    ├── package.json
+    ├── vite.config.js
+    ├── tailwind.config.js
+    ├── index.html
+    └── src/
+        ├── main.jsx           # App entrypoint
+        ├── App.jsx            # Shell with top bar, persistent simulation banner & tabs
+        ├── index.css          # Tailwind CSS directives
+        ├── api.js             # Centralized typed API client
+        ├── AuthContext.jsx    # Current user, demo persona switcher & token storage
+        └── components/        # 9 Core components + StatusBadge.jsx
+            ├── StatusBadge.jsx
+            ├── TwoColumnTrustView.jsx
+            ├── QueueTable.jsx
+            ├── StatCard.jsx
+            ├── Timeline.jsx
+            ├── AlertList.jsx
+            ├── LineageChain.jsx
+            ├── ReleaseStepper.jsx
+            ├── AuditChainViewer.jsx
+            └── DemoClockChip.jsx
+```
+
+---
+
+## 3. Non-Negotiable Engineering Rules
+1. **Never Hardcode Parameters:** Monetary brackets (e.g. 15–35 Lakh), tenures (e.g. 8–10 years), reminder thresholds (180, 90, 60, 30, 7, 0 days), and penalty percentages MUST live in the `rules` table or environment configuration with clause references.
+2. **Deterministic State Machine:** All instrument state changes MUST pass through `workflow.py` via `transition(current_state, event, context) -> (new_state, effects)`. No SQL `UPDATE` should directly alter instrument status outside this transition function.
+3. **Atomic Audit Logging:** Every state transition MUST append an SHA-256 hash-chained entry to the `audit_entries` table in the SAME database transaction.
+4. **Guarded Release:** Maturity NEVER auto-releases funds. Post-maturity release requires:
+   - Verification that no open dispute exists (`no_open_dispute`).
+   - Completion of all clearance checklist items.
+   - Dual-authorization: Maker (`aicte_officer`) != Checker (`aicte_senior`).
+   - Final bank discharge confirmation (`bank_confirms_release`).
+5. **Two-Column Trust View:** The UI must display *Submitted by Institution* alongside *Confirmed by Bank (Simulated)* for every critical field. Any mismatch must display a crimson alert with an explicit reason code (`MATURITY_MISMATCH`, `AMOUNT_MISMATCH`, `LIEN_MISSING`, `CLOSED_AT_BANK`, `NOT_FOUND`).
+6. **Idempotent Scheduler:** Daily alert jobs calculate alerts idempotently. Running the scheduler multiple times on the same date will not duplicate alert rows or outbox records.
+7. **Demo Clock:** Time logic reads exclusively from `clock.py`. The demo clock can fast-forward by +30, +90, or +180 days to demonstrate maturity warnings live to evaluators.
+8. **Synthetic Data Only:** Never commit real institution or bank records. All seed data is synthetic.
+
+---
+
+## 4. Role Matrix & Scoping
+- `aicte_officer`: Maker review, starting verification, checks evidence.
+- `aicte_senior`: Competent authority / checker for release approvals (must differ from Maker).
+- `bank_officer`: Bank Maker on simulated console.
+- `bank_checker`: Bank Checker confirming lien and status (differs from Bank Maker).
+- `institution`: Submits FDRs, uploads renewal proofs, requests release; strictly scoped to own `institution_id`.
+- `auditor`: Read-only access to full history, evidence packs, and audit hash verification.
+- `admin`: Manages users, rules table, and demo clock controls.

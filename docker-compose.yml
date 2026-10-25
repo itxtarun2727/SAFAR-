@@ -1,0 +1,59 @@
+# SAFAR (Smart AICTE FDR Automation & Registry) — Local Docker Compose
+# Services: PostgreSQL 16, FastAPI Backend, React Vite Frontend
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: safar_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: safar_db
+      POSTGRES_USER: safar
+      POSTGRES_PASSWORD: safar_secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U safar -d safar_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: safar_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: "SAFAR Portal API"
+      ENV: "development"
+      DATABASE_URL: "postgresql://safar:safar_secure_password@postgres:5432/safar_db"
+      JWT_SECRET: "safar-super-secret-key-min-32-chars-long-change-in-prod!!"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  # frontend: (Deleted to focus on backend API development; re-enable when frontend is added)
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: safar_frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5173:5173"
+  #   environment:
+  #     VITE_API_URL: "http://localhost:8000"
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+
+volumes:
+  pgdata:
