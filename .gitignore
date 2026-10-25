@@ -46,3 +46,12 @@ miniodata/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Media, Screen Recordings & Demos
+*.mp4
+*.webp
+*.mov
+*.avi
+*.mkv
+safar_frontend_demo.*
+
