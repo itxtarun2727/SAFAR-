@@ -608,3 +608,967 @@ footer {
 flex-direction: column;
 }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SAFAR EXPANDED COMPONENT STYLES
+   Two-Column Trust, Cryptographic Audit Ledger, Modal Dialogs & Simulation
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sub-tag {
+  display: block;
+  font-size: 10px;
+  color: #7d8b9d;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.sub-text {
+  font-size: 10px;
+  color: #8c98a7;
+  display: block;
+}
+
+.table-action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #168052;
+  background: #f0fdf4;
+  color: #168052;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.table-action-button:hover {
+  background: #168052;
+  color: white;
+}
+
+.table-action-button.secondary {
+  border-color: #d0d7e2;
+  background: white;
+  color: #4b5565;
+}
+
+.table-action-button.secondary:hover {
+  background: #f3f5f8;
+  color: #1a202c;
+}
+
+/* Alert Banners */
+.alert-banner-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff9ed;
+  border: 1px solid #fce3b8;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+
+.alert-banner-top.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.alert-banner-top.warning {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.alert-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.alert-banner-top.success .alert-icon-wrap {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.alert-banner-top.warning .alert-icon-wrap {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.alert-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.alert-content strong {
+  font-size: 12px;
+  color: #1f2937;
+}
+
+.alert-content span {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.alert-box.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.alert-box.success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.simulated-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eef4ff;
+  border: 1px solid #d5e2ff;
+  border-radius: 9px;
+  padding: 12px 16px;
+  color: #1e40af;
+  margin-bottom: 20px;
+}
+
+.simulated-notice strong {
+  display: block;
+  font-size: 11px;
+}
+
+.simulated-notice span {
+  font-size: 10px;
+  color: #3b5fa0;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.filter-pill {
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.filter-pill:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.filter-pill.active {
+  background: #168052;
+  color: white;
+  border-color: #168052;
+}
+
+/* Badges */
+.badge-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.badge-tag.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge-tag.gray {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.status-badge.amber {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* ── Two-Column Trust Reconciliation ─────────────────────────────────────────── */
+.recon-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.recon-select {
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #1e293b;
+  font-weight: 600;
+  min-width: 260px;
+  outline: none;
+}
+
+.reconciliation-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+  overflow: hidden;
+}
+
+.recon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 26px;
+  border-bottom: 1px solid #edf2f7;
+  background: #fafbfc;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.recon-title h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #153e32;
+  font-weight: 700;
+}
+
+.recon-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.recon-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.primary-button.highlight {
+  background: #14784f;
+  box-shadow: 0 2px 8px rgba(20, 120, 79, 0.25);
+  font-size: 12px;
+  padding: 11px 18px;
+}
+
+.primary-button.highlight:hover {
+  background: #0e5b3b;
+}
+
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.recon-column {
+  padding: 24px 28px;
+}
+
+.recon-column.left {
+  border-right: 1px solid #edf2f7;
+  background: #ffffff;
+}
+
+.recon-column.right {
+  background: #fafcfb;
+}
+
+.column-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.col-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+}
+
+.col-icon.inst {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.col-icon.bank {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.column-heading h4 {
+  margin: 0 0 2px;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.column-heading span {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.field-list {
+  display: grid;
+  gap: 16px;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  font-size: 11px;
+}
+
+.field-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.field-val {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.match-pill {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+.match-pill.match {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.match-pill.mismatch {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.match-pill.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.recon-footer {
+  padding: 18px 26px;
+  background: #f8fafc;
+}
+
+.crypto-assurance {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.crypto-icon {
+  color: #168052;
+}
+
+.crypto-assurance strong {
+  display: block;
+  font-size: 11px;
+  color: #1e293b;
+}
+
+.crypto-assurance p {
+  margin: 2px 0 0;
+  font-size: 10px;
+  color: #64748b;
+}
+
+/* ── Cryptographic Audit Ledger ─────────────────────────────────────────────── */
+.audit-status-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 28px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.audit-status-card.intact {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.audit-status-card.tampered {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.status-main {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.status-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.audit-status-card.intact .status-icon {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.audit-status-card.tampered .status-icon {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-main h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.status-main p {
+  margin: 0;
+  font-size: 11px;
+  color: #475569;
+}
+
+.evaluator-demo-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.demo-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tamper-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #f87171;
+  background: #fff;
+  color: #dc2626;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.tamper-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.repair-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #86efac;
+  background: #fff;
+  color: #16a34a;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.repair-btn:hover {
+  background: #16a34a;
+  color: white;
+}
+
+.audit-table th {
+  background: #f8fafc;
+}
+
+.seq-badge {
+  display: inline-block;
+  padding: 3px 7px;
+  background: #e2e8f0;
+  color: #334155;
+  border-radius: 5px;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.event-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.transition-flow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.transition-flow .arrow {
+  color: #94a3b8;
+}
+
+.hash-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.hash-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copy-btn {
+  border: 0;
+  background: transparent;
+  padding: 3px;
+  color: #94a3b8;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.copy-btn:hover {
+  color: #1e293b;
+}
+
+.tampered-row {
+  background: #fff1f2 !important;
+}
+
+.tampered {
+  color: #dc2626 !important;
+}
+
+/* ── Modal Dialog ───────────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 14px;
+  width: min(100%, 640px);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 26px;
+}
+
+.modal-container.large {
+  width: min(100%, 780px);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-title-group h3 {
+  margin: 0 0 3px;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.modal-title-group p {
+  margin: 0;
+  font-size: 10px;
+  color: #64748b;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 11px;
+  color: #1e293b;
+  outline: none;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #168052;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.checkbox-label span {
+  font-size: 11px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #edf2f7;
+}
+
+/* ── Details Drawer ─────────────────────────────────────────────────────────── */
+.details-body {
+  padding-top: 10px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: 12px;
+  color: #0f172a;
+}
+
+.dispute-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+.section-block {
+  margin-top: 20px;
+}
+
+.section-block h4 {
+  font-size: 12px;
+  margin: 0 0 8px;
+  color: #1e293b;
+}
+
+/* ── Simulation Clock & Settings ────────────────────────────────────────────── */
+.heading-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.clock-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clock-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.6px;
+}
+
+.clock-date {
+  margin: 0;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.clock-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 3px 9px;
+  width: fit-content;
+}
+
+.clock-badge.simulated {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.clock-badge.real {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.clock-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.clock-btn {
+  font-size: 11px;
+  padding: 9px 13px;
+}
+
+.roster-list {
+  display: grid;
+  gap: 10px;
+}
+
+.roster-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.roster-item strong {
+  display: block;
+  font-size: 12px;
+  color: #0f172a;
+}
+
+.roster-item span {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.role-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.role-tag.senior {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.role-tag.bank {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.role-tag.auditor {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.role-tag.admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.rules-list {
+  display: grid;
+  gap: 10px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.rule-info strong {
+  display: block;
+  font-size: 11px;
+  color: #1e293b;
+}
+
+.rule-clause {
+  font-size: 9px;
+  color: #64748b;
+}
+
+.rule-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: #168052;
+}
+
+@media (max-width: 850px) {
+  .two-column-grid {
+    grid-template-columns: 1fr;
+  }
+  .recon-column.left {
+    border-right: 0;
+    border-bottom: 1px solid #edf2f7;
+  }
+}
