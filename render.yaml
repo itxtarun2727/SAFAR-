@@ -31,8 +31,6 @@ services:
   - type: web
     name: safar-frontend
     env: static
-    region: singapore
-    plan: free
     branch: main
     rootDir: frontend
     buildCommand: "npm install && npm run build"
