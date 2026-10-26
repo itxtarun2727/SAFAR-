@@ -4,9 +4,8 @@
 [![SIH 2024 / 2026](https://img.shields.io/badge/SIH-Problem%20Statement%2026265-orange?style=for-the-badge&logo=gov.uk)](https://www.sih.gov.in/)
 [![AICTE Regulation Bureau](https://img.shields.io/badge/Ministry-AICTE%20Regulation%20Bureau-blue?style=for-the-badge)](https://www.aicte-india.org/)
 [![Team: Code Blooded](https://img.shields.io/badge/Team-Code%20Blooded-red?style=for-the-badge)](https://github.com/itxtarun2727/SAFAR-)
-[![Python 3.12+](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.12-darkgreen?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
-[![React 19](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%208-61DAFB?style=for-the-badge&logo=react)](https://vitejs.dev/)
-[![PostgreSQL 16](https://img.shields.io/badge/Database-PostgreSQL%2016-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![Frontend: Live on Vercel](https://img.shields.io/badge/Frontend-Live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://safar-portal.vercel.app/)
+[![Backend: Live on Render](https://img.shields.io/badge/Backend-Live%20on%20Render-46E3B7?style=for-the-badge&logo=render)](https://safar-backend-kqnf.onrender.com/docs)
 [![Test Suite: 31 Passing](https://img.shields.io/badge/Tests-31%20Passed%20(100%25)-brightgreen?style=for-the-badge&logo=pytest)](https://docs.pytest.org/)
 
 ---
@@ -26,10 +25,12 @@
 
 | Resource | Target Deployment URL | Status / Notes |
 | :--- | :--- | :--- |
-| **Frontend Web App** | `https://safar-portal.vercel.app` *(Placeholder - update after deploy)* | Single-Page App with Role Switcher & Live Vault |
-| **FastAPI Backend & Swagger** | `https://safar-backend.onrender.com/docs` *(Placeholder - update after deploy)* | Interactive OpenAPI documentation & test console |
-| **System Review Report** | [SYSTEM_REVIEW_REPORT.md](SYSTEM_REVIEW_REPORT.md) | Comprehensive 10-invariant compliance audit |
-| **Security Architecture** | [SECURITY.md](SECURITY.md) | STRIDE Threat Model & Cryptographic Specification |
+| **🌐 Live Frontend Portal** | [https://safar-portal.vercel.app](https://safar-portal.vercel.app/) | Production React 19 SPA with Role Switcher & Live Vault |
+| **⚡ FastAPI Swagger Docs** | [https://safar-backend-kqnf.onrender.com/docs](https://safar-backend-kqnf.onrender.com/docs) | Interactive OpenAPI console with "Try it out" buttons |
+| **📖 Alternative ReDoc** | [https://safar-backend-kqnf.onrender.com/redoc](https://safar-backend-kqnf.onrender.com/redoc) | Clean API reference specification |
+| **🩺 Health & Liveness** | [https://safar-backend-kqnf.onrender.com/health](https://safar-backend-kqnf.onrender.com/health) | Live container health, DB heartbeat, clock status |
+| **📋 System Review Report** | [SYSTEM_REVIEW_REPORT.md](SYSTEM_REVIEW_REPORT.md) | Comprehensive 10-invariant compliance audit |
+| **🛡️ Security Architecture** | [SECURITY.md](SECURITY.md) | STRIDE Threat Model & Cryptographic Specification |
 
 ---
 
