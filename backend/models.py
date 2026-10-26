@@ -3,14 +3,43 @@ models.py — SQLAlchemy ORM models for all SAFAR domain entities.
 """
 
 from datetime import datetime
+from typing import Optional
 from sqlalchemy import (
     Column, String, Integer, BigInteger, Date, DateTime, Boolean, Text,
-    ForeignKey, UniqueConstraint
+    ForeignKey, UniqueConstraint, LargeBinary
 )
 from sqlalchemy.orm import relationship
 
 from database import Base
 from clock import Clock
+
+
+class University(Base):
+    """Affiliating State / Technical University."""
+    __tablename__ = "universities"
+
+    id = Column(String(64), primary_key=True)
+    name = Column(String(255), nullable=False)
+    state = Column(String(100), nullable=False)
+    created_at = Column(DateTime, default=Clock.now)
+
+    institutions = relationship("Institution", back_populates="university")
+    users = relationship("User", back_populates="university")
+
+
+class Bank(Base):
+    """Partner Commercial Bank [SIMULATED]."""
+    __tablename__ = "banks"
+
+    id = Column(String(64), primary_key=True)
+    name = Column(String(255), nullable=False)
+    ifsc_prefix = Column(String(20), nullable=False)
+    code = Column(String(30), nullable=False)
+    created_at = Column(DateTime, default=Clock.now)
+
+    instruments = relationship("Instrument", back_populates="bank")
+    release_authorizations = relationship("ReleaseAuthorization", back_populates="bank")
+    users = relationship("User", back_populates="bank")
 
 
 class Trust(Base):
@@ -34,6 +63,7 @@ class Institution(Base):
     aicte_id = Column(String(64), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
     trust_id = Column(String(64), ForeignKey("trusts.id"), nullable=True)
+    university_id = Column(String(64), ForeignKey("universities.id"), nullable=True)
     category = Column(String(100), nullable=True)  # Engineering, Management, Pharmacy, Polytechnic
     state = Column(String(100), nullable=False)
     email = Column(String(120), nullable=False)
@@ -41,7 +71,10 @@ class Institution(Base):
     created_at = Column(DateTime, default=Clock.now)
 
     trust = relationship("Trust", back_populates="institutions")
+    university = relationship("University", back_populates="institutions")
     instruments = relationship("Instrument", back_populates="institution")
+    users = relationship("User", back_populates="institution")
+    failed_verifications = relationship("FailedVerificationAttempt", back_populates="institution")
 
 
 class Instrument(Base):
@@ -50,6 +83,7 @@ class Instrument(Base):
 
     id = Column(String(64), primary_key=True)
     institution_id = Column(String(64), ForeignKey("institutions.id"), nullable=False)
+    bank_id = Column(String(64), ForeignKey("banks.id"), nullable=True)
     type = Column(String(30), default="bank_fdr")  # bank_fdr | online_deposit
     bank_name = Column(String(120), nullable=False)
     branch = Column(String(120), nullable=True)
@@ -64,16 +98,27 @@ class Instrument(Base):
     predecessor_id = Column(String(64), ForeignKey("instruments.id"), nullable=True)  # Renewal lineage
     joint_holder = Column(String(255), nullable=True)  # e.g. "AICTE and Principal / Trust"
     lien_marked = Column(Boolean, default=False)
+    failed_verification_count = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=Clock.now)
     updated_at = Column(DateTime, default=Clock.now, onupdate=Clock.now)
 
     institution = relationship("Institution", back_populates="instruments")
+    bank = relationship("Bank", back_populates="instruments")
     confirmations = relationship("FieldConfirmation", back_populates="instrument")
     documents = relationship("Document", back_populates="instrument")
     alerts = relationship("Alert", back_populates="instrument")
     release_requests = relationship("ReleaseRequest", back_populates="instrument")
+    release_authorizations = relationship("ReleaseAuthorization", back_populates="instrument")
     notes = relationship("ScrutinyNote", back_populates="instrument")
     disputes = relationship("Dispute", back_populates="instrument")
+    failed_verifications = relationship("FailedVerificationAttempt", back_populates="instrument")
+
+    @property
+    def active_release_ref(self) -> Optional[str]:
+        for auth in self.release_authorizations:
+            if auth.status in ["ISSUED", "CLAIMED"]:
+                return auth.release_ref
+        return None
 
 
 class FieldConfirmation(Base):
@@ -106,6 +151,7 @@ class Document(Base):
     file_size = Column(Integer, nullable=True)
     sha256 = Column(String(64), nullable=False)  # Document tamper-evidence digest
     storage_key = Column(String(255), nullable=False)
+    file_data = Column(LargeBinary, nullable=True)  # Stored in DB for ephemeral hosting environments
     uploaded_by = Column(String(120), nullable=False)
     uploaded_at = Column(DateTime, default=Clock.now)
 
@@ -213,3 +259,60 @@ class AuditEntry(Base):
     row_hash = Column(String(64), nullable=False)
     reason = Column(Text, nullable=True)
     at = Column(DateTime, default=Clock.now)
+
+
+class User(Base):
+    """User account entity with explicit tenant scoping."""
+    __tablename__ = "users"
+
+    id = Column(String(64), primary_key=True)
+    username = Column(String(64), unique=True, nullable=False)
+    name = Column(String(120), nullable=False)
+    role = Column(String(60), nullable=False)
+    institution_id = Column(String(64), ForeignKey("institutions.id"), nullable=True)
+    university_id = Column(String(64), ForeignKey("universities.id"), nullable=True)
+    bank_id = Column(String(64), ForeignKey("banks.id"), nullable=True)
+    created_at = Column(DateTime, default=Clock.now)
+
+    institution = relationship("Institution", back_populates="users")
+    university = relationship("University", back_populates="users")
+    bank = relationship("Bank", back_populates="users")
+
+
+class ReleaseAuthorization(Base):
+    """
+    Two-part cryptographic authorization code for simulated bank release.
+    Stores ONLY SHA-256 hashes of the generated bank and college codes.
+    """
+    __tablename__ = "release_authorizations"
+
+    id = Column(String(64), primary_key=True)
+    release_ref = Column(String(120), unique=True, nullable=False)
+    instrument_id = Column(String(64), ForeignKey("instruments.id"), nullable=False)
+    bank_id = Column(String(64), ForeignKey("banks.id"), nullable=False)
+    bank_code_hash = Column(String(64), nullable=False)
+    college_code_hash = Column(String(64), nullable=True)  # Claimed exclusively by college
+    failed_attempt_count = Column(Integer, default=0, nullable=False)
+    issued_by = Column(String(120), nullable=False)
+    issued_at = Column(DateTime, default=Clock.now)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+    status = Column(String(40), default="ISSUED")  # ISSUED | CLAIMED | USED | EXPIRED | REISSUED | LOCKED
+
+    instrument = relationship("Instrument", back_populates="release_authorizations")
+    bank = relationship("Bank", back_populates="release_authorizations")
+
+
+class FailedVerificationAttempt(Base):
+    """Record of failed bank verification checks for compliance audit."""
+    __tablename__ = "failed_verification_attempts"
+
+    id = Column(String(64), primary_key=True)
+    instrument_id = Column(String(64), ForeignKey("instruments.id"), nullable=False)
+    institution_id = Column(String(64), ForeignKey("institutions.id"), nullable=False)
+    reason_code = Column(String(60), nullable=False)
+    attempted_at = Column(DateTime, default=Clock.now)
+
+    instrument = relationship("Instrument", back_populates="failed_verifications")
+    institution = relationship("Institution", back_populates="failed_verifications")
+

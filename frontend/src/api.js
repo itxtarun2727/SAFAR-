@@ -92,13 +92,23 @@ export const api = {
   // ── Dashboard Metrics ────────────────────────────────────────────────────────
   getDashboardStats: () => request('/dashboard/stats'),
 
-  // ── Technical Institutions ───────────────────────────────────────────────────
-  getInstitutions: () => request('/institutions'),
+  // ── Hierarchy & Organizations ────────────────────────────────────────────────
+  getUniversities: () => request('/universities'),
+  getBanks: () => request('/banks'),
+  getInstitutions: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.university_id) query.append('university_id', params.university_id);
+    if (params.state) query.append('state', params.state);
+    const qs = query.toString();
+    return request(`/institutions${qs ? `?${qs}` : ''}`);
+  },
 
   // ── FDR Instruments ──────────────────────────────────────────────────────────
   getInstruments: (params = {}) => {
     const query = new URLSearchParams();
     if (params.institution_id) query.append('institution_id', params.institution_id);
+    if (params.university_id) query.append('university_id', params.university_id);
+    if (params.state) query.append('state', params.state);
     if (params.status) query.append('status', params.status);
     if (params.stage) query.append('stage', params.stage);
     const qs = query.toString();
@@ -124,6 +134,18 @@ export const api = {
       body: JSON.stringify({ event, reason, payload }),
     }),
 
+  approveSubmission: (instrumentId, reason = 'University officer approved regulatory deposit.') =>
+    request(`/instruments/${instrumentId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    }),
+
+  rejectSubmission: (instrumentId, reason) =>
+    request(`/instruments/${instrumentId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    }),
+
   getLineage: (instrumentId) => request(`/instruments/${instrumentId}/lineage`),
 
   addNote: (instrumentId, text) =>
@@ -143,11 +165,74 @@ export const api = {
       method: 'POST',
     }),
 
+  // ── Release Governance (Two-Part Code Workflow) ─────────────────────────────
   requestRelease: (instrumentId, data) =>
-    request(`/instruments/${instrumentId}/release`, {
+    request(`/instruments/${instrumentId}/release-request`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  recommendRelease: (releaseId, reason, checklist) =>
+    request(`/release/${releaseId}/recommend`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, checklist }),
+    }),
+
+  approveRelease: (releaseId, reason) =>
+    request(`/release/${releaseId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    }),
+
+  claimReleaseCode: (releaseRef) =>
+    request(`/release/${releaseRef}/claim-code`, {
+      method: 'POST',
+    }),
+
+  reissueRelease: (releaseRef) =>
+    request(`/release/${releaseRef}/reissue`, {
+      method: 'POST',
+    }),
+
+  renewInstrument: (instrumentId, data) =>
+    request(`/instruments/${instrumentId}/renew`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // ── Documents & Compliance Evidence ─────────────────────────────────────────
+  uploadDocument: (instrumentId, data) =>
+    request(`/instruments/${instrumentId}/documents`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getDocuments: (instrumentId) => request(`/instruments/${instrumentId}/documents`),
+
+  getDocument: (instrumentId, documentId) =>
+    request(`/instruments/${instrumentId}/documents/${documentId}`),
+
+  getNotes: (instrumentId) => request(`/instruments/${instrumentId}/notes`),
+
+  getEvidencePack: (instrumentId) => request(`/instruments/${instrumentId}/evidence-pack`),
+
+  acknowledgeAlert: (alertId) =>
+    request(`/alerts/${alertId}/acknowledge`, {
+      method: 'POST',
+    }),
+
+  // ── Bank Console (Inbox & Release Confirmation) [SIMULATED] ─────────────────
+  getBankInbox: () => request('/bank/inbox'),
+
+  confirmBankRelease: (releaseRef, collegeCode) =>
+    request(`/bank/release/${releaseRef}/confirm`, {
+      method: 'POST',
+      body: JSON.stringify({ college_code: collegeCode }),
+    }),
+
+  // ── Reports ──────────────────────────────────────────────────────────────────
+  getFailedVerifications: () => request('/reports/failed-verifications'),
+
 
   // ── Cryptographic Audit Ledger ───────────────────────────────────────────────
   getAuditEntries: (skip = 0, limit = 100) =>

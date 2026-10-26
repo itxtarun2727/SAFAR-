@@ -9,7 +9,8 @@ import {
   Bell,
   ChevronDown,
   UploadCloud,
-  GraduationCap
+  GraduationCap,
+  KeyRound
 } from "lucide-react";
 import "./App.css";
 
@@ -17,6 +18,7 @@ import { api } from "./api";
 import DashboardView from "./components/DashboardView";
 import InstrumentsView from "./components/InstrumentsView";
 import BankVerificationView from "./components/BankVerificationView";
+import BankConsoleView from "./components/BankConsoleView";
 import AuditTrailView from "./components/AuditTrailView";
 import SettingsView from "./components/SettingsView";
 import CollegePortalView from "./components/CollegePortalView";
@@ -30,7 +32,7 @@ function App() {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Authenticate default persona on boot
+  // Authenticate default persona on boot (Priya - Delhi State Tech Univ Officer)
   useEffect(() => {
     api.login("priya", "demo1234")
       .then((res) => {
@@ -44,15 +46,14 @@ function App() {
     try {
       const res = await api.login(username, "demo1234");
       setCurrentUser(res.user);
-      // Increment refresh key to trigger immediate re-fetch in all views with new Bearer token
       setRefreshKey((k) => k + 1);
 
       // Contextual auto-switch tab based on persona
-      if (username === "inst_user") {
+      if (res.user.role === "institution") {
         setActiveTab("College Dashboard");
-      } else if (username === "bank_checker") {
-        setActiveTab("Bank Verification");
-      } else if (username === "auditor") {
+      } else if (res.user.role === "bank_checker") {
+        setActiveTab("Bank Release Console");
+      } else if (res.user.role === "auditor") {
         setActiveTab("Audit Trail");
       } else {
         setActiveTab("National Dashboard");
@@ -62,27 +63,50 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    window.__safar = {
+      api,
+      handleRoleChange,
+      setActiveTab,
+      setRefreshKey,
+      setIsNewModalOpen,
+    };
+  }, [selectedRole, activeTab]);
+
   const handleSelectInstrumentForRecon = (instrumentId) => {
     setReconInstrumentId(instrumentId);
     setActiveTab("Bank Verification");
   };
 
   const isCollege = currentUser?.role === "institution";
+  const isBank = currentUser?.role === "bank_checker";
 
   // Sidebar navigation dynamically adapts to role
-  const navigation = isCollege
-    ? [
+  const getNavigation = () => {
+    if (isCollege) {
+      return [
         { name: "College Dashboard", icon: LayoutDashboard },
         { name: "Upload New FDR", icon: UploadCloud },
         { name: "Approval & Maturity Alerts", icon: Bell },
-      ]
-    : [
-        { name: "National Dashboard", icon: LayoutDashboard },
-        { name: "All College FDRs", icon: FileText },
-        { name: "Bank Verification", icon: Landmark },
-        { name: "Audit Trail", icon: ClipboardCheck },
-        { name: "Settings", icon: Settings },
       ];
+    }
+    if (isBank) {
+      return [
+        { name: "Bank Release Console", icon: KeyRound },
+        { name: "Bank Verification Adapter", icon: Landmark },
+        { name: "Audit Trail", icon: ClipboardCheck },
+      ];
+    }
+    return [
+      { name: "National Dashboard", icon: LayoutDashboard },
+      { name: "FDR Registry & Release Queue", icon: FileText },
+      { name: "Bank Verification", icon: Landmark },
+      { name: "Audit Trail", icon: ClipboardCheck },
+      { name: "Settings & Demo Clock", icon: Settings },
+    ];
+  };
+
+  const navigation = getNavigation();
 
   // Helper for persona metadata
   const getPersonaMeta = () => {
@@ -91,50 +115,50 @@ function App() {
       case "institution":
         return {
           avatarClass: "institution",
-          avatarText: "GI",
-          title: "Greenfield Tech User",
-          scope: "Strict College Isolation: Greenfield Institute of Technology (inst-001) · Isolated from other colleges.",
-          privilege: "College FDR Upload, Portfolio & Approval Alerts",
+          avatarText: "CL",
+          title: currentUser?.name || "College User",
+          scope: `Multi-Tenant Isolation: ${currentUser?.name || "College"} · Isolated from other colleges.`,
+          privilege: "College FDR Upload, Portfolio & Release Requests",
         };
       case "bank_checker":
         return {
           avatarClass: "bank",
           avatarText: "BK",
-          title: "Bank Checker [SIMULATED]",
-          scope: "Core Banking Gateway: Direct access to ISO-20022 simulated confirmation adapter.",
-          privilege: "Automated Bank Verification & Confirmation",
+          title: currentUser?.name || "Bank Checker [SIMULATED]",
+          scope: `Core Banking Scope: ${currentUser?.bank_id ? currentUser.bank_id.toUpperCase() : "Demo Bank"} [SIMULATED]. Dual-key code verification.`,
+          privilege: "Simulated Two-Part Release Confirmation & Lien Discharge",
         };
       case "auditor":
         return {
           avatarClass: "auditor",
           avatarText: "AU",
           title: "Audit Observer",
-          scope: "Compliance Watch: Read-only cryptographic inspection of append-only audit trail.",
-          privilege: "Read-Only Compliance Observer",
+          scope: "Compliance Watch: Read-only cryptographic inspection of append-only SHA-256 audit ledger.",
+          privilege: "Read-Only Compliance Observer & Failed Verification Reports",
         };
       case "aicte_senior":
         return {
           avatarClass: "senior",
           avatarText: "AR",
           title: "Dr. Anita Rao",
-          scope: "AICTE Headquarters: Senior Approval & High-Value FDR Jurisdiction.",
-          privilege: "Dispute Clearance & Release Authorization",
+          scope: "AICTE Headquarters: National Jurisdiction across all Universities and States.",
+          privilege: "Final Release Approval, Reissue Authorizations & Dispute Clearance",
         };
       case "admin":
         return {
           avatarClass: "admin",
           avatarText: "AD",
           title: "Portal Administrator",
-          scope: "Full Root Jurisdiction: Complete governance over regulatory parameters, users, and ledger.",
-          privilege: "Master Configuration & Demo Controls",
+          scope: "Super Administrator: Regulatory parameter configuration and tamper evidence recovery.",
+          privilege: "Rules Table, Ledger Repair & Demo Controls",
         };
       default:
         return {
           avatarClass: "officer",
-          avatarText: "PS",
-          title: "Priya Sharma",
-          scope: "AICTE Regional Bureau: Scrutiny desk for technical institution joint deposits.",
-          privilege: "FDR Scrutiny, Notes & Dispute Holds",
+          avatarText: "UO",
+          title: currentUser?.name || "University Officer",
+          scope: `AICTE University Jurisdiction: ${currentUser?.university_id ? currentUser.university_id.toUpperCase() : "Regional University"}.`,
+          privilege: "Scrutiny, Checklist Recommendation & Compliance Review",
         };
     }
   };
@@ -151,12 +175,14 @@ function App() {
           </div>
           <div>
             <h2>SAFAR</h2>
-            <span>{isCollege ? "COLLEGE PORTAL" : "AICTE FDR PORTAL"}</span>
+            <span>
+              {isCollege ? "COLLEGE PORTAL" : isBank ? "BANK CONSOLE" : "AICTE PORTAL"}
+            </span>
           </div>
         </div>
 
         <div className="nav-label">
-          {isCollege ? "COLLEGE DESK" : "OFFICER WORKSPACE"}
+          {isCollege ? "COLLEGE DESK" : isBank ? "CORE BANKING [SIMULATED]" : "OFFICER WORKSPACE"}
         </div>
 
         <nav>
@@ -176,8 +202,12 @@ function App() {
           <div className="secure-badge">
             <ShieldCheck size={19} />
             <div>
-              <strong>{isCollege ? "Institutional Isolated" : "Cryptographic Integrity"}</strong>
-              <span>{isCollege ? "Private College Scope" : "SHA-256 Chaining Active"}</span>
+              <strong>
+                {isCollege ? "Institutional Isolated" : isBank ? "Simulated Gateway" : "Cryptographic Ledger"}
+              </strong>
+              <span>
+                {isCollege ? "Private College Scope" : isBank ? "Dual-Key Auth Active" : "SHA-256 Chained Log"}
+              </span>
             </div>
           </div>
           <p>SIH 26265 · AICTE Govt of India</p>
@@ -190,7 +220,7 @@ function App() {
         <header className="topbar">
           <div>
             <span className="breadcrumb">
-              {isCollege ? "College Portal / " : "AICTE Central / "}
+              {isCollege ? "College Portal / " : isBank ? "Bank Gateway / " : "AICTE Central / "}
             </span>
             <strong>{activeTab}</strong>
           </div>
@@ -204,18 +234,34 @@ function App() {
               <Bell size={19} />
             </button>
 
+            {/* Persona Switcher covering all 6 official scenarios */}
             <label className="role-select" title="Switch Evaluator Authentication Persona">
               <span>Persona:</span>
               <select
                 value={selectedRole}
                 onChange={(e) => handleRoleChange(e.target.value)}
               >
-                <option value="priya">Priya Sharma (AICTE Officer)</option>
-                <option value="anita">Dr. Anita Rao (Senior AICTE)</option>
-                <option value="inst_user">Greenfield Tech (Technical College)</option>
-                <option value="bank_checker">Bank Checker [SIMULATED]</option>
-                <option value="auditor">Audit Observer (Compliance Neutral)</option>
-                <option value="admin">Portal Administrator</option>
+                <optgroup label="University Officers">
+                  <option value="priya">Priya Sharma (Demo University A - univ-001)</option>
+                  <option value="rajan">Rajan Mehta (Demo University B - univ-002)</option>
+                </optgroup>
+                <optgroup label="AICTE Senior Director">
+                  <option value="anita">Dr. Anita Rao (Senior AICTE Director - National)</option>
+                </optgroup>
+                <optgroup label="Demo Partner Banks [SIMULATED]">
+                  <option value="bank_a">Demo Bank A Officer (DEMOA) [SIMULATED]</option>
+                  <option value="bank_b">Demo Bank B Officer (DEMOB) [SIMULATED]</option>
+                  <option value="bank_c">Demo Bank C Officer (DEMOC) [SIMULATED]</option>
+                </optgroup>
+                <optgroup label="Technical Colleges">
+                  <option value="inst_user">Delhi Institute of Technology (inst-001)</option>
+                  <option value="inst_apex">Apex Engineering College (inst-002)</option>
+                  <option value="inst_sunrise">Sunrise Institute of Technology (inst-003)</option>
+                </optgroup>
+                <optgroup label="Governance & Audit">
+                  <option value="auditor">Audit Observer (Compliance Neutral)</option>
+                  <option value="admin">Portal Administrator</option>
+                </optgroup>
               </select>
               <ChevronDown size={14} />
             </label>
@@ -245,14 +291,21 @@ function App() {
             </div>
           </section>
 
-          {/* Dedicated College Portal for Technical Colleges */}
+          {/* Conditional View Rendering based on Active Tab & Role */}
           {isCollege ? (
             <CollegePortalView
               currentUser={currentUser}
               onOpenNewModal={() => setIsNewModalOpen(true)}
             />
+          ) : isBank ? (
+            activeTab === "Bank Release Console" ? (
+              <BankConsoleView currentUser={currentUser} />
+            ) : activeTab === "Bank Verification Adapter" ? (
+              <BankVerificationView currentUser={currentUser} initialInstrumentId={reconInstrumentId} />
+            ) : (
+              <AuditTrailView currentUser={currentUser} />
+            )
           ) : (
-            /* Officers & Bank & Auditor Portals */
             <>
               {activeTab === "National Dashboard" && (
                 <DashboardView
@@ -263,7 +316,7 @@ function App() {
                 />
               )}
 
-              {activeTab === "All College FDRs" && (
+              {activeTab === "FDR Registry & Release Queue" && (
                 <InstrumentsView
                   currentUser={currentUser}
                   onOpenNewModal={() => setIsNewModalOpen(true)}
@@ -282,7 +335,7 @@ function App() {
                 <AuditTrailView currentUser={currentUser} />
               )}
 
-              {activeTab === "Settings" && (
+              {activeTab === "Settings & Demo Clock" && (
                 <SettingsView currentUser={currentUser} />
               )}
             </>
@@ -290,7 +343,7 @@ function App() {
 
           <footer>
             <span>SAFAR · Smart AICTE FDR Automation &amp; Registry</span>
-            <span>SIH Problem Statement 26265 · Ministry of Education</span>
+            <span>SIH Problem Statement 26265 · Ministry of Education · Bank responses simulated</span>
           </footer>
         </div>
       </main>

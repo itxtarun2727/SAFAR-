@@ -44,11 +44,26 @@ DEFAULT_RULES = [
     {
         "key": "release.checklist_items",
         "value": json.dumps([
-            {"id": "complaints_cleared", "label": "No Open Student / Faculty Grievances", "required": True},
-            {"id": "faculty_salary_compliant", "label": "Faculty Salary Norms Cleared (7th CPC)", "required": True},
-            {"id": "regional_noc", "label": "AICTE Regional Office Inspection NOC Issued", "required": True}
+            {"id": "complaints_cleared", "label": "No Open Student / Faculty Grievances — TODO(confirm)", "required": True},
+            {"id": "faculty_salary_compliant", "label": "Faculty Salary Norms Cleared (7th CPC) — TODO(confirm)", "required": True},
+            {"id": "regional_noc", "label": "AICTE Regional Office Inspection NOC Issued — TODO(confirm)", "required": True}
         ]),
-        "clause_ref": "APH Clearance Norms for Security Deposit Discharge",
+        "clause_ref": "SAFAR design parameter; TODO(confirm)",
+    },
+    {
+        "key": "release.code_expiry_hours",
+        "value": json.dumps(72),
+        "clause_ref": "SAFAR design parameter; TODO(confirm)",
+    },
+    {
+        "key": "release.max_failed_attempts",
+        "value": json.dumps(3),
+        "clause_ref": "SAFAR design parameter; TODO(confirm)",
+    },
+    {
+        "key": "verification.failed_attempt_alert_threshold",
+        "value": json.dumps(3),
+        "clause_ref": "SAFAR design parameter; TODO(confirm)",
     },
 ]
 

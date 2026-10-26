@@ -4,6 +4,7 @@ import { api } from "../api";
 
 export default function NewInstrumentModal({ isOpen, onClose, onSuccess }) {
   const [institutions, setInstitutions] = useState([]);
+  const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -14,7 +15,8 @@ export default function NewInstrumentModal({ isOpen, onClose, onSuccess }) {
 
   const [formData, setFormData] = useState({
     institution_id: "",
-    bank_name: "State Bank of India",
+    bank_id: "bank-001",
+    bank_name: "Demo Bank A",
     branch: "Connaught Place, New Delhi",
     reference_no: "",
     amount_rupees: "2500000",
@@ -28,17 +30,21 @@ export default function NewInstrumentModal({ isOpen, onClose, onSuccess }) {
 
   useEffect(() => {
     if (isOpen) {
-      api.getInstitutions()
-        .then((data) => {
-          setInstitutions(data);
-          if (data && data.length > 0) {
-            setFormData((prev) => ({
-              ...prev,
-              institution_id: prev.institution_id || data[0].id,
-            }));
-          }
+      Promise.all([
+        api.getInstitutions().catch(() => []),
+        api.getBanks().catch(() => []),
+      ])
+        .then(([insts, bks]) => {
+          setInstitutions(insts || []);
+          setBanks(bks || []);
+          setFormData((prev) => ({
+            ...prev,
+            institution_id: prev.institution_id || (insts && insts.length > 0 ? insts[0].id : ""),
+            bank_id: prev.bank_id || (bks && bks.length > 0 ? bks[0].id : "bank-001"),
+            bank_name: prev.bank_name || (bks && bks.length > 0 ? bks[0].name : "Demo Bank A"),
+          }));
         })
-        .catch((err) => console.error("Failed to load institutions:", err));
+        .catch((err) => console.error("Failed to load modal metadata:", err));
       setError("");
     }
   }, [isOpen]);
@@ -138,15 +144,32 @@ export default function NewInstrumentModal({ isOpen, onClose, onSuccess }) {
             </div>
 
             <div className="form-group">
-              <label>Issuing Bank Name</label>
-              <select name="bank_name" value={formData.bank_name} onChange={handleChange}>
-                <option>State Bank of India</option>
-                <option>Punjab National Bank</option>
-                <option>HDFC Bank</option>
-                <option>ICICI Bank</option>
-                <option>Bank of Baroda</option>
-                <option>Canara Bank</option>
-                <option>Union Bank of India</option>
+              <label>Partner Bank [SIMULATED]</label>
+              <select
+                name="bank_id"
+                value={formData.bank_id || "bank-001"}
+                onChange={(e) => {
+                  const bId = e.target.value;
+                  const found = banks.find((b) => b.id === bId);
+                  setFormData((prev) => ({
+                    ...prev,
+                    bank_id: bId,
+                    bank_name: found ? found.name : "Demo Bank A",
+                  }));
+                }}
+              >
+                {banks.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.ifsc_prefix}) [SIMULATED]
+                  </option>
+                ))}
+                {banks.length === 0 && (
+                  <>
+                    <option value="bank-001">Demo Bank A (DEMOA) [SIMULATED]</option>
+                    <option value="bank-002">Demo Bank B (DEMOB) [SIMULATED]</option>
+                    <option value="bank-003">Demo Bank C (DEMOC) [SIMULATED]</option>
+                  </>
+                )}
               </select>
             </div>
 

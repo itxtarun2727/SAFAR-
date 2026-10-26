@@ -19,6 +19,9 @@ class UserInfo(BaseModel):
     user_id: str
     role: str
     name: str
+    institution_id: Optional[str] = None
+    university_id: Optional[str] = None
+    bank_id: Optional[str] = None
     institution_ids: List[str] = []
 
 
@@ -26,6 +29,25 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserInfo
+
+
+# ── Universities & Banks ───────────────────────────────────────────────────────
+
+class UniversityResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    state: str
+
+
+class BankResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    ifsc_prefix: str
+    code: str
 
 
 # ── Institutions & Trusts ──────────────────────────────────────────────────────
@@ -46,6 +68,7 @@ class InstitutionResponse(BaseModel):
     aicte_id: str
     name: str
     trust_id: Optional[str] = None
+    university_id: Optional[str] = None
     category: Optional[str] = None
     state: str
     email: str
@@ -56,6 +79,7 @@ class InstitutionResponse(BaseModel):
 
 class InstrumentCreate(BaseModel):
     institution_id: str
+    bank_id: Optional[str] = None
     bank_name: str
     branch: Optional[str] = None
     reference_no: str
@@ -101,6 +125,7 @@ class InstrumentResponse(BaseModel):
 
     id: str
     institution_id: str
+    bank_id: Optional[str] = None
     type: str
     bank_name: str
     branch: Optional[str] = None
@@ -115,6 +140,8 @@ class InstrumentResponse(BaseModel):
     predecessor_id: Optional[str] = None
     joint_holder: Optional[str] = None
     lien_marked: bool
+    failed_verification_count: int = 0
+    active_release_ref: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -177,6 +204,69 @@ class ReleaseResponse(BaseModel):
     bank_confirmed_at: Optional[datetime] = None
 
 
+class ReleaseAuthorizationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    release_ref: str
+    instrument_id: str
+    bank_id: str
+    issued_by: str
+    issued_at: datetime
+    expires_at: datetime
+    used_at: Optional[datetime] = None
+    status: str
+    failed_attempt_count: int = 0
+
+
+class ClaimCodeResponse(BaseModel):
+    release_ref: str
+    college_code: str
+    message: str
+
+
+class DocumentUploadRequest(BaseModel):
+    file_name: str
+    doc_type: str = "fdr_certificate"
+    file_type: str = "application/pdf"
+    content_b64: Optional[str] = None
+
+
+class InstrumentRenewRequest(BaseModel):
+    new_reference_no: str
+    amount_paise: int = Field(gt=0, description="Renewed amount in paise")
+    maturity_date: date
+    issue_date: Optional[date] = None
+    interest_rate: Optional[str] = None
+    branch: Optional[str] = "Main Branch"
+    joint_holder: Optional[str] = "AICTE and Society / Trust"
+    lien_marked: bool = True
+
+
+class ReleaseRecommendRequest(BaseModel):
+    reason: str
+    checklist: Dict[str, bool]
+
+
+class ReleaseApproveRequest(BaseModel):
+    reason: str
+
+
+class BankReleaseConfirmRequest(BaseModel):
+    college_code: str
+
+
+class FailedVerificationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    instrument_id: str
+    institution_id: str
+    reason_code: str
+    attempted_at: datetime
+
+
+
 class InstrumentDetailResponse(InstrumentResponse):
     institution: Optional[InstitutionResponse] = None
     confirmations: List[FieldConfirmationResponse] = []
@@ -184,6 +274,7 @@ class InstrumentDetailResponse(InstrumentResponse):
     notes: List[ScrutinyNoteResponse] = []
     disputes: List[DisputeResponse] = []
     release_requests: List[ReleaseResponse] = []
+    release_authorizations: List[ReleaseAuthorizationResponse] = []
 
 
 # ── Workflow & Transitions ─────────────────────────────────────────────────────
@@ -192,6 +283,14 @@ class TransitionRequest(BaseModel):
     event: str
     reason: Optional[str] = None
     payload: Optional[dict] = None
+
+
+class ScrutinyDecisionRequest(BaseModel):
+    reason: str
+
+
+class ResubmitRequest(BaseModel):
+    reason: Optional[str] = "Corrected regulatory submission by institution."
 
 
 # ── Alerts ─────────────────────────────────────────────────────────────────────

@@ -62,10 +62,12 @@ export default function DashboardView({ currentUser, onSelectTab, onOpenNewModal
   const disputedCount = stats?.disputed ?? instruments.filter((i) => i.status === "DISPUTED").length;
 
   const metrics = [
-    { title: currentUser?.role === "institution" ? "My Registered FDRs" : "Total Registered FDRs", value: totalCount, note: currentUser?.role === "institution" ? "College FDRs on file" : "Live instruments in registry", icon: FileText, color: "blue" },
-    { title: "Active & Verified", value: activeCount, note: "Bank confirmed & lien active", icon: CheckCircle2, color: "green" },
-    { title: "Expiring (90-Day Window)", value: expiringCount, note: "Action required for renewal", icon: Clock, color: "amber" },
-    { title: "Disputed / Flagged", value: disputedCount, note: "Requires scrutiny action", icon: AlertTriangle, color: "red" },
+    { title: "Active", value: stats?.active ?? 0, note: "Bank verified & lien active", icon: CheckCircle2, color: "green" },
+    { title: "Expiring", value: stats?.expiring ?? 0, note: "Approaching maturity window", icon: Clock, color: "amber" },
+    { title: "Matured", value: stats?.matured ?? 0, note: "Completed tenure duration", icon: AlertCircle, color: "purple" },
+    { title: "Renewed", value: stats?.renewed ?? 0, note: "Rolled over to new instrument", icon: RefreshCw, color: "blue" },
+    { title: "Released", value: stats?.released ?? 0, note: "Lien discharged & closed", icon: ShieldCheck, color: "teal" },
+    { title: "Pending", value: stats?.pending ?? 0, note: "Under review or verification", icon: FileText, color: "gray" },
   ];
 
   const getStatusBadge = (status) => {
@@ -76,7 +78,7 @@ export default function DashboardView({ currentUser, onSelectTab, onOpenNewModal
     if (s === "disputed" || s === "rejected") {
       return <span className="status-badge disputed"><AlertTriangle size={13} /> {status}</span>;
     }
-    if (s === "matured" || s === "encashed") {
+    if (s === "matured" || s === "closed") {
       return <span className="status-badge amber"><AlertCircle size={13} /> {status}</span>;
     }
     return <span className="status-badge pending"><Clock size={13} /> {status || "Submitted"}</span>;
@@ -84,6 +86,14 @@ export default function DashboardView({ currentUser, onSelectTab, onOpenNewModal
 
   return (
     <div className="view-container">
+      {/* Simulation Notice Banner */}
+      <div className="simulated-global-banner">
+        <Landmark size={18} />
+        <span>
+          <strong>[SIMULATED] Regulatory Prototype Notice:</strong> Bank confirmation is simulated in this prototype. Synthetic data only.
+        </span>
+      </div>
+
       {/* Welcome Row */}
       <section className="welcome-row">
         <div>

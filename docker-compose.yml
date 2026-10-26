@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: safar
       POSTGRES_PASSWORD: safar_secure_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -31,8 +31,9 @@ services:
     environment:
       APP_NAME: "SAFAR Portal API"
       ENV: "development"
-      DATABASE_URL: "postgresql://safar:safar_secure_password@postgres:5432/safar_db"
+      DATABASE_URL: "postgresql+psycopg2://safar:safar_secure_password@postgres:5432/safar_db"
       JWT_SECRET: "safar-super-secret-key-min-32-chars-long-change-in-prod!!"
+      DEMO_MODE: "true"
     depends_on:
       postgres:
         condition: service_healthy

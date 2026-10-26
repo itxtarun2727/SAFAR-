@@ -38,12 +38,32 @@ class MockBankAdapter(BaseBankAdapter):
     """
 
     def __init__(self):
-        # In-memory bank simulator repository
+        # In-memory bank simulator repository with fictional banks [SIMULATED]
         self.simulated_records: Dict[str, Dict[str, Any]] = {
             # Scenario 3: Matching active FDR (Delhi Institute)
             "SBIN00269910": {
                 "reference_no": "SBIN00269910",
-                "bank_name": "State Bank of India",
+                "bank_name": "Demo Bank A",
+                "amount_paise": 250000000,
+                "issue_date": "2024-01-15",
+                "maturity_date": "2034-01-15",
+                "joint_holder": "AICTE and Principal, Delhi Institute of Technology",
+                "lien_marked": True,
+                "status": "ACTIVE_AT_BANK",
+            },
+            "DEMOA00269910": {
+                "reference_no": "DEMOA00269910",
+                "bank_name": "Demo Bank A",
+                "amount_paise": 250000000,
+                "issue_date": "2024-01-15",
+                "maturity_date": "2034-01-15",
+                "joint_holder": "AICTE and Principal, Delhi Institute of Technology",
+                "lien_marked": True,
+                "status": "ACTIVE_AT_BANK",
+            },
+            "DEMOA00998877": {
+                "reference_no": "DEMOA00998877",
+                "bank_name": "Demo Bank A",
                 "amount_paise": 250000000,
                 "issue_date": "2024-01-15",
                 "maturity_date": "2034-01-15",
@@ -54,7 +74,7 @@ class MockBankAdapter(BaseBankAdapter):
             # Scenario 2: Maturity date mismatch (Apex College)
             "HDFC00918273": {
                 "reference_no": "HDFC00918273",
-                "bank_name": "HDFC Bank",
+                "bank_name": "Demo Bank B",
                 "amount_paise": 150000000,
                 "issue_date": "2023-06-10",
                 "maturity_date": "2028-06-10",  # College claimed 2033 (10 years) -> MISMATCH!
@@ -64,10 +84,32 @@ class MockBankAdapter(BaseBankAdapter):
                 "mismatch_field": "maturity_date",
                 "reason_code": "MATURITY_MISMATCH",
             },
+            "DEMOB00918273": {
+                "reference_no": "DEMOB00918273",
+                "bank_name": "Demo Bank B",
+                "amount_paise": 150000000,
+                "issue_date": "2023-06-10",
+                "maturity_date": "2028-06-10",
+                "joint_holder": "AICTE and Apex College",
+                "lien_marked": True,
+                "status": "ACTIVE_AT_BANK",
+                "mismatch_field": "maturity_date",
+                "reason_code": "MATURITY_MISMATCH",
+            },
             # Scenario 6: Disputed release candidate (Sunrise Institute)
             "ICIC00441188": {
                 "reference_no": "ICIC00441188",
-                "bank_name": "ICICI Bank",
+                "bank_name": "Demo Bank C",
+                "amount_paise": 350000000,
+                "issue_date": "2016-08-20",
+                "maturity_date": "2026-08-20",
+                "joint_holder": "AICTE and Sunrise Institute",
+                "lien_marked": True,
+                "status": "MATURED",
+            },
+            "DEMOC00441188": {
+                "reference_no": "DEMOC00441188",
+                "bank_name": "Demo Bank C",
                 "amount_paise": 350000000,
                 "issue_date": "2016-08-20",
                 "maturity_date": "2026-08-20",
@@ -78,13 +120,34 @@ class MockBankAdapter(BaseBankAdapter):
             # Scenario 4: Approaching maturity in 30 days (National Polytechnic)
             "BARB00771239": {
                 "reference_no": "BARB00771239",
-                "bank_name": "Bank of Baroda",
+                "bank_name": "Demo Bank C",
                 "amount_paise": 200000000,
                 "issue_date": "2016-11-24",
                 "maturity_date": "2026-11-24",
                 "joint_holder": "AICTE and National Polytechnic",
                 "lien_marked": True,
                 "status": "ACTIVE_AT_BANK",
+            },
+            "DEMOC00771239": {
+                "reference_no": "DEMOC00771239",
+                "bank_name": "Demo Bank C",
+                "amount_paise": 200000000,
+                "issue_date": "2016-11-24",
+                "maturity_date": "2026-11-24",
+                "joint_holder": "AICTE and National Polytechnic",
+                "lien_marked": True,
+                "status": "ACTIVE_AT_BANK",
+            },
+            # Scenario 5: Matured FDR Ready for Release (Delhi Institute)
+            "DEMOA00554433": {
+                "reference_no": "DEMOA00554433",
+                "bank_name": "Demo Bank A",
+                "amount_paise": 300000000,
+                "issue_date": "2016-01-15",
+                "maturity_date": "2026-01-15",
+                "joint_holder": "AICTE & Delhi Institute of Technology",
+                "lien_marked": True,
+                "status": "MATURED",
             },
         }
 

@@ -1,6 +1,6 @@
 # SAFAR: DESIGN.md (UI and UX design system)
 
-SAFAR = Smart AICTE FDR Automation & Registry. This file tells the frontend how the product should look, read and behave. Follow it for every screen. Where it conflicts with a quick guess, follow this file. Read it with `IDE_SYSTEM_PROMPT` / the project brief, which defines the rules and data.
+SAFAR = Smart AICTE FDR Automation & Registry. This file specifies the frontend design system, typography, color palette, and UI/UX conventions. Follow it for every screen.
 
 Stack: React + Vite + TypeScript + Tailwind. Icons: Lucide. Charts: Recharts (simple bars and counts only).
 

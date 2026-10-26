@@ -11,10 +11,12 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./safar.db"
-)
+DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "true"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    if not DEMO_MODE:
+        raise RuntimeError("DATABASE_URL environment variable is strictly required in non-demo mode.")
+    DATABASE_URL = "sqlite:///./safar.db"
 
 # Handle sqlite fallback for local unit tests without docker
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}

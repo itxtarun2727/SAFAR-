@@ -21,6 +21,12 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: DEMO_MODE
+        value: "true"
+      - key: CORS_ORIGINS
+        value: "http://localhost:5173,http://localhost:3000,https://safar-portal.vercel.app"
+      - key: STORAGE_BACKEND
+        value: "database"
 
 databases:
   - name: safar-postgres

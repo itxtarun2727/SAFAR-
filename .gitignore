@@ -1,57 +1,106 @@
-# Python
+# ==============================================================================
+# SAFAR — .gitignore
+# Smart AICTE FDR Automation & Registry
+# ==============================================================================
+
+# Python Bytecode & Environments
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 build/
+develop-eggs/
 dist/
-*.egg-info/
+downloads/
+eggs/
 .eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
 *.egg
-.venv
+.venv/
 venv/
 env/
+ENV/
+
+# Testing & Coverage
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
 *.log
 
 # Node & Frontend
 node_modules/
+frontend/node_modules/
 frontend/dist/
-frontend/.env
-frontend/.env.local
+frontend/dist-ssr/
+.npm/
+.eslintcache
 
-# Docker & Storage
-pgdata/
-miniodata/
-*.db
-*.sqlite3
-
-# Environment & Secrets
+# Environment Variables & Secrets (CRITICAL: NEVER COMMIT SECRETS)
 .env
 .env.*
 !.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
 *.pem
 *.key
 *.cert
 *.crt
+*.pfx
+*.p12
 
-# IDE & OS
-.vscode/
+# Database & Local Storage
+pgdata/
+miniodata/
+*.db
+*.sqlite
+*.sqlite3
+safar.db
+
+# OS & Editor
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
 desktop.ini
+*.bak
+*.tmp
 
-# Media, Screen Recordings & Demos
+# Large Media, Screen Recordings & Video Demos
 *.mp4
 *.webp
 *.mov
 *.avi
 *.mkv
+*.webm
 safar_frontend_demo.*
+safar_complete_workflow.*
+safar_college_officer_isolation.*
+safar_full_workflow.*
+test_workflow.*
+
+# Internal Planning & Agent Artifacts (Keep Local Only)
+.planning/
+.agents/
+
+# AI System Prompts (Keep Local Only - Do Not Push to GitHub)
+docs/IDE_SYSTEM_PROMPT*
+docs/*SYSTEM_PROMPT*
+*SYSTEM_PROMPT*
 
