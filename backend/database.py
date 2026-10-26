@@ -18,6 +18,12 @@ if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL environment variable is strictly required in non-demo mode.")
     DATABASE_URL = "sqlite:///./safar.db"
 
+# Handle Render postgres:// legacy format and explicitly bind psycopg2 driver
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
 # Handle sqlite fallback for local unit tests without docker
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
